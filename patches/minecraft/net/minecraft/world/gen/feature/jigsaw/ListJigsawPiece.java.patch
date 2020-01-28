@@ -1,35 +1,50 @@
 --- a/net/minecraft/world/gen/feature/jigsaw/ListJigsawPiece.java
 +++ b/net/minecraft/world/gen/feature/jigsaw/ListJigsawPiece.java
-@@ -17,6 +17,7 @@
+@@ -18,6 +18,8 @@
  
  public class ListJigsawPiece extends JigsawPiece {
     private final List<JigsawPiece> field_214867_a;
-+   private final net.minecraft.util.ResourceLocation resourceLocation;
++   private final net.minecraft.util.ResourceLocation LIST = new net.minecraft.util.ResourceLocation("list");
++   private final List<net.minecraft.util.ResourceLocation> resourceLocations;
  
     @Deprecated
     public ListJigsawPiece(List<JigsawPiece> p_i51404_1_) {
-@@ -30,6 +31,7 @@
+@@ -31,6 +33,7 @@
        } else {
           this.field_214867_a = p_i51405_1_;
           this.func_214864_b(p_i51405_2_);
-+         this.resourceLocation = new net.minecraft.util.ResourceLocation(this.field_214867_a.stream().map(Object::toString).collect(Collectors.joining(", ")));
++         this.resourceLocations = this.field_214867_a.stream().map(JigsawPiece::getRegistryName).collect(Collectors.toList());
        }
     }
  
-@@ -42,6 +44,7 @@
+@@ -43,6 +46,7 @@
           throw new IllegalArgumentException("Elements are empty");
        } else {
           this.field_214867_a = list;
-+         this.resourceLocation = new net.minecraft.util.ResourceLocation(this.field_214867_a.stream().map(Object::toString).collect(Collectors.joining(", ")));
++         this.resourceLocations = this.field_214867_a.stream().map(JigsawPiece::getRegistryName).collect(Collectors.toList());
        }
     }
  
-@@ -96,4 +99,8 @@
+@@ -89,7 +93,7 @@
+    }
+ 
+    public String toString() {
+-      return "List[" + (String)this.field_214867_a.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]";
++      return "List[" + resourceLocations.stream().map(net.minecraft.util.ResourceLocation::toString).collect(Collectors.joining(", ")) + "]";
+    }
+ 
+    private void func_214864_b(JigsawPattern.PlacementBehaviour p_214864_1_) {
+@@ -97,4 +101,13 @@
           p_214863_1_.func_214845_a(p_214864_1_);
        });
     }
 +
++   @Override
 +   public net.minecraft.util.ResourceLocation getRegistryName() {
-+      return resourceLocation;
++      return LIST;
++   }
++
++   public List<net.minecraft.util.ResourceLocation> getElementRegistryNames(){
++      return resourceLocations;
 +   }
  }

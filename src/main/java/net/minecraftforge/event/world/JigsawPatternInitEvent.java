@@ -30,14 +30,15 @@ import net.minecraft.world.gen.feature.structure.Structures;
 import net.minecraftforge.eventbus.api.Event;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * This event is called every time a {@link JigsawPattern} is created. Use this event to modify the pools of the JigsawPattern
  * <br>
- * Use {@link #addBuilding(JigsawPiece, int)} to add custom JigsawPiece to structure pools
+ * Use {@link #addBuildings(Pair[])} to add custom JigsawPiece to structure pools
  * <br>
- * Use {@link #removeBuilding(ResourceLocation)} to remove a JigsawPiece from structure pools.
+ * Use {@link #removeBuildings(ResourceLocation...)} to remove a JigsawPiece from structure pools.
  * <b>Be careful to not to remove all JigsawPieces from the startPool ("village/plains/town_centers" for Village and "pillager_outpost/base_plates" for PillageOutpost)</b>
  *
  */
@@ -54,40 +55,22 @@ public class JigsawPatternInitEvent extends Event {
     }
 
     /**
-     * add single JigsawPiece with weight to a pool
-     * @param piece The structure that should be added
-     * @param weight The weight of the structure
-     */
-    public void addBuilding(@Nonnull JigsawPiece piece, int weight)
-    {
-        newBuildings.add(new Pair<>(piece, weight));
-    }
-
-    /**
      * Add multiple JigsawPieces with weight to a pool at the same time
      * @param pieces A list of JigsawPieces and weights that should be added to the pool
      */
-    public void addBuildings(@Nonnull List<Pair<JigsawPiece, Integer>> pieces)
+    @SafeVarargs
+    public final void addBuildings(Pair<JigsawPiece, Integer>... pieces)
     {
-        newBuildings.addAll(pieces);
-    }
-
-    /**
-     * removes single JigsawPiece from a JigsawPattern
-     * @param building The identifier of the JigsawPiece {@link JigsawPiece#getRegistryName()} (see e.g. {@link net.minecraft.world.gen.feature.structure.PlainsVillagePools}
-     */
-    public void removeBuilding(@Nonnull ResourceLocation building)
-    {
-        remove.add(building);
+        newBuildings.addAll(Arrays.asList(pieces));
     }
 
     /**
      * removes multiple JigsawPieces from a JigsawPattern
      * @param buildings The identifiers of the JigsawPieces {@link JigsawPiece#getRegistryName()} (see e.g. {@link net.minecraft.world.gen.feature.structure.PlainsVillagePools}
      */
-    public void removeBuildings(@Nonnull List<ResourceLocation> buildings)
+    public void removeBuildings(ResourceLocation... buildings)
     {
-        remove.addAll(buildings);
+        remove.addAll(Arrays.asList(buildings));
     }
 
     public List<Pair<JigsawPiece, Integer>> getPool(){
@@ -100,40 +83,4 @@ public class JigsawPatternInitEvent extends Event {
         return jigsawPoolName.toString().equals(name);
     }
 
-    /**
-     * This event should be fired whenever a Jigsaw bases structure initializes its pools.
-     * Use this event to register custom JigsawPattern before the corresponding structure is constructed.
-     */
-    public static abstract class StructureJigsawPoolInitEvent extends Event{
-
-        public void register(JigsawPattern jigsawPattern){
-            JigsawManager.field_214891_a.register(jigsawPattern);
-        }
-
-        public abstract ResourceLocation getStructureRegistryName();
-
-        public static class Village extends StructureJigsawPoolInitEvent{
-            private static boolean fired;
-
-            public Village() {
-                fired = true;
-            }
-
-            public static boolean isFired(){
-                return fired;
-            }
-
-            @Override
-            public ResourceLocation getStructureRegistryName() {
-                return Structures.VILLAGE.getRegistryName();
-            }
-        }
-
-        public static class PillageOutpost extends StructureJigsawPoolInitEvent{
-            @Override
-            public ResourceLocation getStructureRegistryName() {
-                return Structures.PILLAGER_OUTPOST.getRegistryName();
-            }
-        }
-    }
 }
